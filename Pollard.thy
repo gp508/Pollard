@@ -33,11 +33,6 @@ termination Cycle
 proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
-fun checkQ :: "nat list \<Rightarrow> nat list" where
-  "checkQ (n#xs) =
-     (let z = gcd (getQ xs) n in
-      if 1 < z \<and> z < n then [z] else xs)"
-
 fun factorise :: "nat list \<Rightarrow> nat list" where
   "factorise (x#xs) = (if Prime x then x#factorise xs else Cycle 1 x [2,2])"|
   "factorise [] = []"
@@ -45,7 +40,6 @@ fun factorise :: "nat list \<Rightarrow> nat list" where
 fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if Prime(x) then [x]
    else factorise [x])"
-
 
 value "Rho 12"
 
