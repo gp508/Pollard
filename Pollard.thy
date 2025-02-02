@@ -20,7 +20,7 @@ fun getd :: "nat \<Rightarrow> nat list \<Rightarrow> nat" where
 
 function Cycle :: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> nat list" where
   "Cycle i n (x#y#xs) = 
-  (let d = (getd n xs) mod n in
+  (let d = (getd n (x#y#xs)) mod n in
   if i > 1000 then xs else
   if i < d \<and> d < n then [d,n div d]
   else Cycle (i + 1) n (g x # g (g x) # x # y # []))"
@@ -34,13 +34,16 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun factorise :: "nat list \<Rightarrow> nat list" where
-  "factorise (x#xs) = (if Prime x then x#factorise xs else Cycle 1 x [2,2])"|
+  "factorise (x#xs) = (if Prime x then x#factorise xs else Cycle 1 x [2,g 2])"|
   "factorise [] = []"
 
 fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if Prime(x) then [x]
    else factorise [x])"
 
+
+value "getd 12 [2,5]"
+value "getQ [2,5]"
 value "Rho 12"
 
 end
