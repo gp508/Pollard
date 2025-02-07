@@ -6,7 +6,7 @@ fun Prime :: "nat \<Rightarrow> bool" where
                                         
 
 fun g :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
-  "g n x = x^2+1 mod n"
+  "g n x = (x^2+1) mod n"
 
 fun getQ :: "nat list \<Rightarrow> nat" where
   "getQ [] = 1"|
@@ -34,7 +34,7 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun factorise :: "nat list \<Rightarrow> nat list" where
-  "factorise (x#xs) = (if Prime x then x#factorise xs else Cycle 1 x [2,g x 2])"|
+  "factorise (x#xs) = (if Prime x then x#factorise xs else Cycle 1 x [2,g x 2])@factorise xs"|
   "factorise [] = []"
 
 fun Rho :: "nat \<Rightarrow> nat list" where
@@ -42,8 +42,9 @@ fun Rho :: "nat \<Rightarrow> nat list" where
    else factorise [x])"
 
 
-value "getd 16 [2,5]"
+value "getd 49 [2,5]"
 value "getQ [2,5]"
-value "Rho 4"
+value "Rho 12"
+value "g 2 3"
 
 end
