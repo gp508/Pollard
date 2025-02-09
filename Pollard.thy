@@ -24,15 +24,22 @@ fun getd :: "nat \<Rightarrow> nat list \<Rightarrow> nat" where
 function Cycle :: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> nat list" where
   "Cycle i n (x#y#xs) = 
   (let d = (getd n (x#y#xs)) mod n in
+  let p = n div d in
   if i > 1000 then xs else
-  if 1 < d \<and> d < n then [d,n div d]
+  if 1 < d \<and> d < n then
+
+ (if Prime p \<and> prime d then [d,n div d]
+  else if Prime p then p # Cycle (i+1) d [2, g d 2]
+  else if Prime d then d # Cycle (i+1) p [2, g p 2]
+  else Cycle (i+1) d [2, g d 2] @  Cycle (i+1) p [2, g p 2])
+
   else Cycle (i + 1) n (g n x # g n (g n y) # []))"
   | "Cycle i n [] = []"
   | "Cycle i n [_] = []"
   by pat_completeness auto
 
 
-termination Cycle
+termination Cycle      
 proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
@@ -44,10 +51,6 @@ fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if Prime(x) then [x]
    else factorise [x])"
 
-value "Cycle 2 14 [2,5,5,677]"
-value "getd 8051 [2,5,5,677,26,7474]"
-value "getQ [2,5,5,677]"
-value "Rho 76693"
-value "g 2 3"
+value "Rho 27"
 
 end

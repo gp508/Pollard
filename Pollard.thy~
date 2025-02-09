@@ -1,5 +1,8 @@
 theory Pollard
   imports Main
+  "HOL-Library.Code_Target_Numeral" 
+  "HOL-Computational_Algebra.Primes"
+
 begin
 fun Prime :: "nat \<Rightarrow> bool" where
   "Prime x = (if x = 2 then True else if x = 3 then True else if x = 5 then True else False)"
@@ -14,7 +17,7 @@ fun getQ :: "nat list \<Rightarrow> nat" where
   "getQ (x # y # xs) = (y - x) * getQ (xs)"
 
 fun getd :: "nat \<Rightarrow> nat list \<Rightarrow> nat" where
-  "getd n xs = (let Q = getQ xs in
+  "getd n xs = (let Q = getQ xs mod n in
   gcd Q n)"
 
 
@@ -23,7 +26,7 @@ function Cycle :: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> na
   (let d = (getd n (x#y#xs)) mod n in
   if i > 1000 then xs else
   if 1 < d \<and> d < n then [d,n div d]
-  else Cycle (i + 1) n (g n x # g n (g n y) # x # y # []))"
+  else Cycle (i + 1) n (g n x # g n (g n y) # []))"
   | "Cycle i n [] = []"
   | "Cycle i n [_] = []"
   by pat_completeness auto
@@ -41,10 +44,10 @@ fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if Prime(x) then [x]
    else factorise [x])"
 
-
-value "getd 49 [2,5]"
-value "getQ [2,5]"
-value "Rho 12"
+value "Cycle 2 14 [2,5,5,677]"
+value "getd 8051 [2,5,5,677,26,7474]"
+value "getQ [2,5,5,677]"
+value "Rho 293332619"
 value "g 2 3"
 
 end
