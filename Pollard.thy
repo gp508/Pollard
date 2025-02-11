@@ -54,6 +54,8 @@ fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if Prime(x) then [x]
    else factorise [x])"
 
-value "Rho 214"
+value "Rho 6567"
+
+export_code g getQ getd Cycle factorise Rho in SML
 
 end
