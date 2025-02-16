@@ -48,12 +48,26 @@ fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if prime(x) then [x]
    else factorise [x])"
 
-value "Rho 4"
+value "Rho 145"
 
-fun mul :: "nat list \<Rightarrow> nat" where
-"mul (x#xs) = x*mul xs"|
-"mul [] = 1"
+lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
+  by simp
 
-lemma Correct: "x mod mul (Rho x) = 0 \<or> Rho x = []"
+lemma set_element: "x \<in> set [n] \<Longrightarrow> x = n"
+  by simp
 
+lemma Correct: assumes "p \<in> set (Rho n)" shows "p dvd n"
+proof (insert assms, induction n rule: Rho.induct)
+  case (1 n)
+  then show ?case
+  proof (cases "prime n")
+    case True
+    then have "set(Rho n) = set([n])" using prime_rho by (simp)
+    then have "p \<in> set([n])" using 1 by simp
+      then show ?thesis using set_element by simp
+  next
+    case False
+    then show ?thesis sorry
+  qed
+qed
 end

@@ -23,12 +23,12 @@ function Cycle :: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> na
   (let d = (getd n (x#y#xs)) mod n in
   let p = n div d in
   if i > 1000 then xs else
-  if 1 < d \<and> d < n then
 
+  if 1 < d \<and> d < n then
  (if prime p \<and> prime d then [d,n div d]
-  else if prime p then p # Cycle (i+1) d [2, g d 2]
-  else if prime d then d # Cycle (i+1) p [2, g p 2]
-  else Cycle (i+1) d [2, g d 2] @  Cycle (i+1) p [2, g p 2])
+  else if prime p then p # Cycle (i+1) d [2,4]
+  else if prime d then d # Cycle (i+1) p [2,4]
+  else Cycle (i+1) d [2, 4] @  Cycle (i+1) p [2,4])
 
   else Cycle (i + 1) n (g n x # g n (g n y) # []))"
   | "Cycle i n [] = []"
@@ -41,27 +41,36 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun factorise :: "nat list \<Rightarrow> nat list" where
-  "factorise (x#xs) = (if prime x then x#factorise xs else Cycle 1 x [2,g x 2])@factorise xs"|
+  "factorise (x#xs) = (if prime x then x#factorise xs else Cycle 1 x [2,4])@factorise xs"|
   "factorise [] = []"
 
 fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if prime(x) then [x]
    else factorise [x])"
 
-value "Rho 8051"
+value "Rho 4"
 
-fun mul :: "nat list \<Rightarrow> nat" where
-"mul (x#xs) = x*mul xs"|
-"mul [] = 1"
+lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
+  by simp
 
-lemma Correct: "mul (Rho x) = x \<or> Rho x = []"
-proof (cases x)
-  case 0
-  then show ?thesis sorry
-next
-  case (Suc nat)
-  then show ?thesis sorry
-qed 
-  done
+lemma set_element: "x \<in> set [n] \<Longrightarrow> x = n"
+  by simp
 
+lemma set_equal: "x \<in> y \<and> y = z \<Longrightarrow> x \<in> z"
+  by auto
+
+lemma Correct: assumes "p \<in> set (Rho n)" shows "p dvd n"
+proof (induction n rule: Rho.induct)
+  case (1 n)
+  then show ?case
+  proof (cases "prime n")
+    case True
+    then have "set(Rho n) = set([n])" using prime_rho by (simp)
+    then have "p \<in> set([n])" using set_equal by simp
+      then show ?thesis using set_element by simp
+  next
+    case False
+    then show ?thesis sorry
+  qed
+qed
 end
