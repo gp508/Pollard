@@ -48,26 +48,24 @@ fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if prime(x) then [x]
    else factorise [x])"
 
-value "Rho 145"
-
 lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
   by simp
 
 lemma set_element: "x \<in> set [n] \<Longrightarrow> x = n"
   by simp
 
-lemma Correct: assumes "p \<in> set (Rho n)" shows "p dvd n"
-proof (insert assms, induction n rule: Rho.induct)
-  case (1 n)
-  then show ?case
-  proof (cases "prime n")
-    case True
-    then have "set(Rho n) = set([n])" using prime_rho by (simp)
-    then have "p \<in> set([n])" using 1 by simp
-      then show ?thesis using set_element by simp
-  next
-    case False
-    then show ?thesis sorry
-  qed
+value "Rho 3"
+
+lemma Correct: assumes "prime p" and "prime q" and "n = p * q" shows "p \<in> set(Rho n)"
+proof (insert assms,cases "n=0")
+  case True
+  then have "p=0" using assms(2) assms(3) by auto 
+  then have "p=0" using assms(2) assms(3) by auto 
+  then show ?thesis using assms(1) by auto
+next
+  case False
+  then show ?thesis
 qed
+
+
 end
