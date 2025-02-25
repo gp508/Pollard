@@ -41,12 +41,14 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun factorise :: "nat list \<Rightarrow> nat list" where
-  "factorise (x#xs) = (if prime x then x#factorise xs else Cycle 1 x [2,4])@factorise xs"|
+  "factorise (x#xs) =  (Cycle 1 x [2,4])@factorise xs"|
   "factorise [] = []"
 
 fun Rho :: "nat \<Rightarrow> nat list" where
   "Rho x = (if prime(x) then [x]
    else factorise [x])"
+
+(*Helper lemmas*)
 
 lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
   by simp
@@ -54,12 +56,25 @@ lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
 lemma set_element: "x \<in> set [n] \<Longrightarrow> x = n"
   by simp
 
-value "Rho 3"
+lemma Cycle_prime_help: assumes "d = getd n [2,4]" and "p = n div d" and "x \<in> set (Cycle 1 n [2,4])" shows "prime x"
+proof(insert assms, cases "prime p \<and> prime d")
+  case True
+  have "Cycle 1 n [2,4] = d # Cycle (i+1) p [2,4]" by (auto)
 
-lemma Correct: assumes "prime p" and "prime q" and "n = p * q" shows "p \<in> set(Rho n)"
+
+lemma Cycle_prime: assumes "x \<in> set (Cycle 1 n [2,4])" shows "prime x"
+proof(insert assms)
+  obtain "d = getd n [2,4]" by auto
+  then show ?thesis sorry
+  
+
+value "Rho 4278335778"
+
+(*Main lemmas*)
+
+lemma Correct: assumes "prime p" and "prime q" and "n = p * q" and "p \<noteq> q" shows "p \<in> set(Rho n)"
 proof (insert assms,cases "n=0")
   case True
-  then have "p=0" using assms(2) assms(3) by auto 
   then have "p=0" using assms(2) assms(3) by auto 
   then show ?thesis using assms(1) by auto
 next
