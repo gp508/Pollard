@@ -41,7 +41,7 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun factorise :: "nat list \<Rightarrow> nat list" where
-  "factorise (x#xs) = (if prime x then x#factorise xs else Cycle 1 x [2,4])@factorise xs"|
+  "factorise (x#xs) =  (Cycle 1 x [2,4])@factorise xs"|
   "factorise [] = []"
 
 fun Rho :: "nat \<Rightarrow> nat list" where

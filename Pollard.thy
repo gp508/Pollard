@@ -56,31 +56,38 @@ lemma prime_rho: "prime n \<Longrightarrow> set (Rho n) = set([n])"
 lemma set_element: "x \<in> set [n] \<Longrightarrow> x = n"
   by simp
 
-lemma Cycle_prime_help: assumes "d = getd n [2,4]" and "p = n div d" and "x \<in> set (Cycle 1 n [2,4])" shows "prime x"
+lemma Cycle_no_xs:
+  assumes "i \<le> 1000"
+  shows "Cycle i n (x#y#xs) \<noteq> xs"
+proof -
+  have "\<not> (i > 1000)" using assms by simp
+  thus ?thesis by auto
+qed
+
+
+lemma Cycle_both_prime: assumes "1<d \<and> d<n" and "d = get d n [2,4] mod n" and "p = n div d" and "prime p" and "prime d" shows "Cycle 1 n [2,4] = [d,p]"
+proof(insert assms)
+  have "\<not> (1 > 1000)" by (auto)
+  then have "Cycle 1 n [2,4]" =  
+
+
+lemma Cycle_divide_help: assumes "d = getd n [2,4] mod n" and "p = n div d" and "x \<in> set (Cycle 1 n [2,4])" shows "x dvd n"
 proof(insert assms, cases "prime p \<and> prime d")
   case True
   have "Cycle 1 n [2,4] = d # Cycle (i+1) p [2,4]" by (auto)
 
 
-lemma Cycle_prime: assumes "x \<in> set (Cycle 1 n [2,4])" shows "prime x"
-proof(insert assms)
-  obtain "d = getd n [2,4]" by auto
-  then show ?thesis sorry
+lemma Cycle_divide: assumes "x \<in> set (Cycle 1 n [2,4])" shows "x dvd n"
+proof(insert assms,cases "prime n")
+  case True
+  then show ?thesis by 
   
-
-value "Rho 4278335778"
 
 (*Main lemmas*)
 
-lemma Correct: assumes "prime p" and "prime q" and "n = p * q" and "p \<noteq> q" shows "p \<in> set(Rho n)"
-proof (insert assms,cases "n=0")
-  case True
-  then have "p=0" using assms(2) assms(3) by auto 
-  then show ?thesis using assms(1) by auto
-next
-  case False
-  then show ?thesis
-qed
+lemma Correct: assumes "p \<in> set (Rho n)" shows "p dvd n"
+proof
+
 
 
 end
