@@ -2,6 +2,7 @@ theory Pollard
   imports Main
   "HOL-Library.Code_Target_Numeral" 
   "HOL-Computational_Algebra.Primes"
+  "HOL.GCD"
 
 begin                                        
 
@@ -59,17 +60,31 @@ qed auto
 
 fun Rho :: "nat \<Rightarrow> nat" where
   "Rho x = (if prime(x) then x
-   else Cycle 1 x [2,2])"
+   else Cycle 1 x [2,5])"
 
 value "Rho (10457*12789)"
 value "Cycle_full 1  (10457*10559) [2,2]"
 (*Helper lemmas*)
 
+lemma getd_dvd: assumes "getd n xs = p" shows "p dvd n"
+proof -
+  have "getd n xs = gcd (getQ xs mod n) n" by auto
+  have "... dvd n" using gcd_dvd2 by blast
+  show ?thesis using assms by auto
+qed
+
+
+
+lemma Cycle_dvd: assumes "Cycle 1 n [2,2] = p" shows "p dvd n"
+proof(cases "p=1")
+  case True
+  then show ?thesis by simp
+  case False
+  
 
 (*Main lemmas*)
 
 lemma Correct: assumes "Rho n = p" shows "p dvd n"
-proof
 
 
 
