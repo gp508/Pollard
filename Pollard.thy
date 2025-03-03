@@ -42,16 +42,14 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 (*Simplified function*)
-function Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> nat" where
-  "Cycle i n (x#y#xs) = 
-  (let d = (getd n (x#y#xs)) mod n in
+function Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat" where
+  "Cycle i n x y = 
+  (let d = (getd n [x,y]) mod n in
   if i > 1000 then 1 else
 
   if 1 < d \<and> d < n then d
 
-  else Cycle (i + 1) n (g n x # g n (g n y) # []))"
-  | "Cycle i n [] = 1"
-  | "Cycle i n [_] = 1"
+  else Cycle (i + 1) n (g n x) (g n (g n y)))"
   by pat_completeness auto
 
 
@@ -60,10 +58,10 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 fun Rho :: "nat \<Rightarrow> nat" where
-  "Rho x = (if prime(x) then x
-   else Cycle 1 x [2,2])"
+  "Rho n = (if prime(n) then n
+   else Cycle 1 n 2 2)"
 
-value "Rho (25601*13921)"
+value "Rho (25601*139)"
 value "Cycle_full 1  (10457*10559) [2,2]"
 (*Helper lemmas*)
 
@@ -74,17 +72,51 @@ proof -
   then show ?thesis using assms by auto
 qed
 
-value "Cycle 1 4053 [2,2]"
+value "Cycle 1 4053 2 2"
 
-lemma Cycle_def:"Cycle i n [2,2] =(let d = (getd n [2,2]) mod n in
-  if i > 1000 then 1 else
+lemma recursive:  assumes "Cycle i n x y = p" shows "p dvd n"
+proof -
+  let ?d = "getd n [x,y]"
+  have "p = 1 \<or> p = ?d \<or> p = Cycle (i+1) n (g n x)  (g n (g n y))" proof(cases "p=1")
+    case True 
+    then show ?thesis by simp
+  next
+    case False
+    then have "\<not>(i>1000)" using assms by auto
+    then show ?thesis
+  proof(cases " 1 < ?d \<and> ?d < n")
+    case True
+    then have "p=?d" by auto
+    then show ?thesis by auto
+  next
+    case False
+    then have "Cycle (i+1) n (g n x) (g n (g n y)) = p" using assms by auto
+    then show ?thesis by auto
+  qed
 
-  if 1 < d \<and> d < n then d
 
-  else Cycle (i+1) n (g n 2 # g n (g n 2) # []))"
-  by auto
 
-lemma Cycle_dvd: assumes "Cycle i n [2,2] = p" shows "p dvd n"
+lemma Cycle_i_recursive: assumes "Cycle i n 2 2] = p" shows "p dvd n"
+proof(insert assms,cases "p=1")
+  case True
+  then show ?thesis by simp
+next
+  case False
+  then have "\<not>(i>1000)" using assms by auto
+  then show ?thesis
+  proof(cases " 1 < getd n [2,2] \<and> getd n [2,2] < n")
+    case True
+    then show ?thesis by auto
+  next
+    case False
+    then have "Cycle (i+1) n (g n 2 # g n (g n 2) # []) = p" using assms by auto
+  then show ?thesis sorry
+  qed
+qed
+
+
+
+lemma Cycle_dvd: assumes "Cycle 1 n [2,2] = p" shows "p dvd n"
 proof(insert assms,cases "p=1")
   case True
   then show ?thesis by simp
@@ -102,14 +134,20 @@ next
     then show ?thesis by auto
   next
     case False
+    then have "Cycle 1 n [2,2] = p" using assms by auto
+    then have "Cycle (1+1) n (g n 2 # g n (g n 2) # []) = p" using assms by auto
+    then show ?thesis proof-"
   qed
 
 (*Main lemmas*)
 
 
 lemma Correct: assumes "Rho n = p" shows "p dvd n"
-proof -
-  show ?thesis sorry
+proof(cases "prime n")
+  case False
+  then have "p = Cycle 1 n [2,2]" using assms by auto
+  have "(Cycle 1 n [2,2]) dvd n" by (auto simp: Cycle_dvd)
+  then show ?thesis by auto
 
 
 end
