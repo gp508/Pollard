@@ -42,26 +42,21 @@ proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
 qed auto
 
 (*Simplified function*)
-function Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat list \<Rightarrow> nat" where
-  "Cycle i n (x#y#xs) = 
-  (let d = (getd n (x#y#xs)) mod n in
-  if i > 1000 then 1 else
+fun Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat" where
+  "Cycle i n x y = 
+  (let d = (getd n [x,y]) mod n in
+  if i = 0 then 1 else
 
   if 1 < d \<and> d < n then d
 
-  else Cycle (i + 1) n (g n x # g n (g n y) # []))"
-  | "Cycle i n [] = 1"
-  | "Cycle i n [_] = 1"
-  by pat_completeness auto
+  else Cycle (i - 1) n (g n x) (g n (g n y)))"
 
-
-termination Cycle
-proof (relation "measure (\<lambda>(i, xs). 1001 - i)")
-qed auto
+  
+  
 
 fun Rho :: "nat \<Rightarrow> nat" where
   "Rho n = (if prime(n) then n
-   else Cycle 1 n [2,2])"
+   else Cycle 1 n 2 2)"
 
 value "Rho (25601*139)"
 value "Cycle_full 1  (10457*10559) [2,2]"
@@ -74,31 +69,31 @@ proof -
   then show ?thesis using assms by auto
 qed
 
-value "Cycle 1 4053 [2,2]"
+value "Cycle 1 4053 2 2"
 
-lemma LALALA:  assumes "Cycle i n [x,y] = p" shows "p dvd n"
-proof -
-  let ?d = "getd n [x,y]"
-  have "p = 1 \<or> p = d \<or> p = Cycle (i+1) n (g n x # g n (g n y) # [])" proof(cases "p=1")
-    case True 
-    then show ?thesis by simp
-  next
-    case False
-    then have "\<not>(i>1000)" using assms by auto
-    then show ?thesis
-  proof(cases " 1 < d \<and> d < n")
+lemma recursive:  assumes "Cycle i n x y = p" and "0 < n" shows "p dvd n"
+proof(insert assms, induction i arbitrary: x y)
+  case 0
+  then show ?case by(auto)
+next
+  case (Suc i)
+  then show ?case 
+  proof(cases "let d = (getd n [x,y]) mod n in 1 < d \<and> d < n")
     case True
-    then have "p=d" by auto
-    then show ?thesis by auto
+    then show ?thesis 
+      using Suc.prems apply(simp add:Let_def) 
+      using getd_dvd by (metis gcd_dvd2 gcd_le2_nat gcd_mod_left less_nat_zero_code mod_less mod_self order_le_less) 
   next
     case False
-    then have "Cycle (i+1) n (g n x # g n (g n y) # []) = p" using assms by auto
-    then show ?thesis by auto
+    then show ?thesis 
+      using Suc by(simp add:Let_def) 
   qed
+qed
 
 
 
-lemma Cycle_i_recursive: assumes "Cycle i n [2,2] = p" shows "p dvd n"
+
+lemma Cycle_i_recursive: assumes "Cycle i n 2 2] = p" shows "p dvd n"
 proof(insert assms,cases "p=1")
   case True
   then show ?thesis by simp

@@ -71,7 +71,7 @@ qed
 
 value "Cycle 1 4053 2 2"
 
-lemma recursive:  assumes "Cycle i n x y = p" and "0 < n" shows "p dvd n"
+lemma Cycle_dvd:  assumes "Cycle i n x y = p" and "0 < n" shows "p dvd n"
 proof(insert assms, induction i arbitrary: x y)
   case 0
   then show ?case by(auto)
@@ -91,60 +91,19 @@ next
 qed
 
 
-
-
-lemma Cycle_i_recursive: assumes "Cycle i n 2 2] = p" shows "p dvd n"
-proof(insert assms,cases "p=1")
-  case True
-  then show ?thesis by simp
-next
-  case False
-  then have "\<not>(i>1000)" using assms by auto
-  then show ?thesis
-  proof(cases " 1 < getd n [2,2] \<and> getd n [2,2] < n")
-    case True
-    then show ?thesis by auto
-  next
-    case False
-    then have "Cycle (i+1) n (g n 2 # g n (g n 2) # []) = p" using assms by auto
-  then show ?thesis sorry
-  qed
-qed
-
-
-
-lemma Cycle_dvd: assumes "Cycle 1 n [2,2] = p" shows "p dvd n"
-proof(insert assms,cases "p=1")
-  case True
-  then show ?thesis by simp
-next
-  case False
-  then have "Cycle 1 n [2,2] =(let d = (getd n [2,2]) mod n in
-
-  if 1 < d \<and> d < n then d
-
-  else Cycle (1+1) n (g n 2 # g n (g n 2) # []))" by auto
-  then have " 1 < getd n [2,2] \<and> getd n [2,2] < n \<Longrightarrow> p=getd n [2,2]" by auto
-  then show ?thesis
-  proof(cases " 1 < getd n [2,2] \<and> getd n [2,2] < n")
-    case True
-    then show ?thesis by auto
-  next
-    case False
-    then have "Cycle 1 n [2,2] = p" using assms by auto
-    then have "Cycle (1+1) n (g n 2 # g n (g n 2) # []) = p" using assms by auto
-    then show ?thesis proof-"
-  qed
-
 (*Main lemmas*)
 
 
 lemma Correct: assumes "Rho n = p" shows "p dvd n"
 proof(cases "prime n")
+  case True
+  then show ?thesis using assms by auto
+next
   case False
-  then have "p = Cycle 1 n [2,2]" using assms by auto
-  have "(Cycle 1 n [2,2]) dvd n" by (auto simp: Cycle_dvd)
-  then show ?thesis by auto
+  then have "Rho n = Cycle 1 n 2 2" by simp
+  then show ?thesis using Cycle_dvd
+    by (metis assms gcd_nat.extremum gr0I)
+qed
 
 
 end
