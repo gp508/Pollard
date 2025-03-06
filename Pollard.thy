@@ -4,7 +4,7 @@ theory Pollard
   "HOL-Computational_Algebra.Primes"
   "HOL.GCD"
 
-begin                                        
+begin
 
 fun g :: "nat \<Rightarrow> nat \<Rightarrow> nat" where
   "g n x = (x^2+1) mod n"
@@ -51,15 +51,37 @@ fun Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat \<Rightar
 
   else Cycle (i - 1) n (g n x) (g n (g n y)))"
 
-  
-  
-
 fun Rho :: "nat \<Rightarrow> nat" where
   "Rho n = (if prime(n) then n
    else Cycle 1 n 2 2)"
 
-value "Rho (25601*139)"
-value "Cycle_full 1  (10457*10559) [2,2]"
+(*ML \<open>
+  fun run_maxima cmd =
+    let
+      val tmpfile = OS.FileSys.tmpName () ^ ".txt"  (* Generate a unique temp file *)
+      val maxima_cmd = "maxima -r \"" ^ cmd ^ "\" > " ^ tmpfile  (* Command with output redirection *)
+      val exit_status = OS.Process.system maxima_cmd  (* Run the command and capture the status *)
+    in
+      case exit_status of
+        OS.Process.Status _ =>  (* If the process ran successfully *)
+          let
+            val instream = TextIO.openIn tmpfile
+            val result = TextIO.inputAll instream
+            val _ = TextIO.closeIn instream
+            val _ = OS.FileSys.remove tmpfile
+          in
+            if result = "" then
+              "No output from Maxima"
+            else
+              result
+          end
+      | OS.Process.Failure => "Maxima execution failed."  (* If the process failed *)
+    end;
+
+  val result = run_maxima "gcd(42, 56);";
+  val _ = writeln ("Maxima Output: " ^ result);
+\<close>*)
+
 (*Helper lemmas*)
 
 lemma getd_dvd: assumes "getd n xs = p" shows "p dvd n"
@@ -68,8 +90,6 @@ proof -
   then have "... dvd n" using gcd_dvd2 by blast
   then show ?thesis using assms by auto
 qed
-
-value "Cycle 1 4053 2 2"
 
 lemma Cycle_dvd:  assumes "Cycle i n x y = p" and "0 < n" shows "p dvd n"
 proof(insert assms, induction i arbitrary: x y)
@@ -82,7 +102,7 @@ next
     case True
     then show ?thesis 
       using Suc.prems apply(simp add:Let_def) 
-      using getd_dvd by (metis gcd_dvd2 gcd_le2_nat gcd_mod_left less_nat_zero_code mod_less mod_self order_le_less) 
+      using getd_dvd by (metis gcd_dvd2 gcd_le2_nat less_nat_zero_code mod_less mod_self order_le_less) 
   next
     case False
     then show ?thesis 
@@ -105,5 +125,5 @@ next
     by (metis assms gcd_nat.extremum gr0I)
 qed
 
-
+export_code Rho in Haskell
 end
