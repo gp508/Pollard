@@ -53,34 +53,7 @@ fun Cycle:: "nat \<Rightarrow> nat \<Rightarrow> nat \<Rightarrow> nat \<Rightar
 
 fun Rho :: "nat \<Rightarrow> nat" where
   "Rho n = (if prime(n) then n
-   else Cycle 1 n 2 2)"
-
-(*ML \<open>
-  fun run_maxima cmd =
-    let
-      val tmpfile = OS.FileSys.tmpName () ^ ".txt"  (* Generate a unique temp file *)
-      val maxima_cmd = "maxima -r \"" ^ cmd ^ "\" > " ^ tmpfile  (* Command with output redirection *)
-      val exit_status = OS.Process.system maxima_cmd  (* Run the command and capture the status *)
-    in
-      case exit_status of
-        OS.Process.Status _ =>  (* If the process ran successfully *)
-          let
-            val instream = TextIO.openIn tmpfile
-            val result = TextIO.inputAll instream
-            val _ = TextIO.closeIn instream
-            val _ = OS.FileSys.remove tmpfile
-          in
-            if result = "" then
-              "No output from Maxima"
-            else
-              result
-          end
-      | OS.Process.Failure => "Maxima execution failed."  (* If the process failed *)
-    end;
-
-  val result = run_maxima "gcd(42, 56);";
-  val _ = writeln ("Maxima Output: " ^ result);
-\<close>*)
+   else Cycle 1000 n 2 2)"
 
 (*Helper lemmas*)
 
@@ -110,7 +83,6 @@ next
   qed
 qed
 
-
 (*Main lemmas*)
 
 
@@ -120,10 +92,8 @@ proof(cases "prime n")
   then show ?thesis using assms by auto
 next
   case False
-  then have "Rho n = Cycle 1 n 2 2" by simp
+  then have "Rho n = Cycle 1000 n 2 2" by simp
   then show ?thesis using Cycle_dvd
     by (metis assms gcd_nat.extremum gr0I)
 qed
-
-export_code Rho in Haskell
 end

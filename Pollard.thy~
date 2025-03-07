@@ -55,7 +55,7 @@ fun Rho :: "nat \<Rightarrow> nat" where
   "Rho n = (if prime(n) then n
    else Cycle 1 n 2 2)"
 
-ML \<open>
+(*ML \<open>
   fun run_maxima cmd =
     let
       val tmpfile = OS.FileSys.tmpName () ^ ".txt"  (* Generate a unique temp file *)
@@ -80,7 +80,7 @@ ML \<open>
 
   val result = run_maxima "gcd(42, 56);";
   val _ = writeln ("Maxima Output: " ^ result);
-\<close>
+\<close>*)
 
 (*Helper lemmas*)
 
@@ -124,6 +124,8 @@ next
   then show ?thesis using Cycle_dvd
     by (metis assms gcd_nat.extremum gr0I)
 qed
+definition nat_of_char :: "char \<Rightarrow> nat"
+  where [code_abbrev]: "nat_of_char = of_char"
 
-
+export_code nat_of_char in Haskell
 end

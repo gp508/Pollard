@@ -4,7 +4,7 @@ module
   Arith(Nat, equal_nat, times_nat, Times, Num(..), one_nat, One, plus_nat,
          zero_nat, Power, minus_nat, modulo_nat, Semiring_modulo_trivial,
          Algebraic_semidom, Semidom_modulo, suc, dvd, power, less_nat,
-         nat_of_integer, less_eq_nat)
+         nat_of_integer, less_eq_nat,integer_of_nat,bit_cut_integer,nat_of_char)
   where {
 
 import Prelude ((==), (/=), (<), (<=), (>=), (>), (+), (-), (*), (/), (**),
@@ -195,8 +195,6 @@ class (Semigroup_mult a, Power a) => Monoid_mult a where {
 class (Monoid_mult a, Numeral a, Semiring a) => Semiring_numeral a where {
 };
 
-class (One a, Zero a) => Zero_neq_one a where {
-};
 
 class (Semiring_numeral a, Semiring_0 a, Zero_neq_one a) => Semiring_1 a where {
 };
@@ -391,5 +389,57 @@ nat_of_integer k = Nat (Orderings.max (0 :: Integer) k);
 
 less_eq_nat :: Nat -> Nat -> Bool;
 less_eq_nat m n = integer_of_nat m <= integer_of_nat n;
+
+bit_cut_integer :: Integer -> (Integer, Bool);
+bit_cut_integer k =
+  (if k == (0 :: Integer) then ((0 :: Integer), False)
+    else (case divMod (abs k) (abs (2 :: Integer)) of {
+           (r, s) ->
+             ((if (0 :: Integer) < k then r else negate r - s),
+               s == (1 :: Integer));
+         }));
+
+
+one_integer :: Integer;
+one_integer = (1 :: Integer);
+
+instance One Integer where {
+  one = one_integer;
+};
+
+instance Zero Integer where {
+  zero = (0 :: Integer);
+};
+
+class (One a, Zero a) => Zero_neq_one a where {
+};
+
+instance Zero_neq_one Integer where {
+};
+
+
+data Char = Char Bool Bool Bool Bool Bool Bool Bool Bool;
+
+of_bool :: forall a. (Zero_neq_one a) => Bool -> a;
+of_bool True = one;
+of_bool False = zero;
+
+integer_of_char :: Char -> Integer;
+integer_of_char (Char b0 b1 b2 b3 b4 b5 b6 b7) =
+  ((((((of_bool b7 * (2 :: Integer) + of_bool b6) * (2 :: Integer) +
+        of_bool b5) *
+        (2 :: Integer) +
+       of_bool b4) *
+       (2 :: Integer) +
+      of_bool b3) *
+      (2 :: Integer) +
+     of_bool b2) *
+     (2 :: Integer) +
+    of_bool b1) *
+    (2 :: Integer) +
+    of_bool b0;
+
+nat_of_char :: Char -> Nat;
+nat_of_char c = Nat (integer_of_char c);
 
 }
