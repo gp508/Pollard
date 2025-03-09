@@ -42,7 +42,7 @@ cycle i n x y =
 rho :: Arith.Nat -> Arith.Nat;
 rho n =
   (if Primes.prime_nat n then n
-    else cycle (Arith.nat_of_integer (1000 :: Integer)) n (Arith.nat_of_integer (2 :: Integer))
+    else cycle (Arith.nat_of_integer (100000 :: Integer)) n (Arith.nat_of_integer (2 :: Integer))
            (Arith.nat_of_integer (2 :: Integer)));
 
 }
