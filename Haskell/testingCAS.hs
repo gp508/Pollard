@@ -2,7 +2,7 @@ import PollardCAS
 import Arith
 
 main :: IO ()
-main = test [45,135,3383976097]
+main = test [21]
 
 test :: [Integer] -> IO ()
 test [] = putStrLn("")

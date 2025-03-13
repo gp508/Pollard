@@ -18,5 +18,7 @@ def getRandomPrime(max):
 def getRandomSemiprime(max):
     return getRandomPrime(max) * getRandomPrime(max)
 
+semiPrimes = []
 for i in range(100):
-    print(getRandomSemiprime(10000))
+    semiPrimes.append(getRandomSemiprime(100000))
+print(semiPrimes)
